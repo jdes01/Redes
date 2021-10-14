@@ -41,8 +41,20 @@ void Client::setServerSocketDataStructure_(string serverIpAddress, int serverPor
     serverSocketData_.sin_addr.s_addr = inet_addr(serverIpAddress.c_str());
 }
 
+/*
+ * request server connection method
+*/
 
-void Client::requestServerConnection_(){}
+void Client::requestServerConnection_(){
+
+    socklen_t serverSocketDataSize;
+    serverSocketDataSize = sizeof(serverSocketData_);
+    int connectionResult = connect(clientSocketDescriptor_, (struct sockaddr *) &serverSocketData_, serverSocketDataSize);
+    if (connectionResult == -1) {
+        cout << "Error: imposible contectarse" << endl;
+        exit(1);
+    }
+}
 
 
 void Client::setFileDescriptorStructures_(){}
