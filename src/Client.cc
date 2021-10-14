@@ -9,7 +9,7 @@ Client::Client(string serverIpAddress, int serverPortNumber){
     openClientSocket_();
     setServerSocketDataStructure_(serverIpAddress, serverPortNumber);
     requestServerConnection_();
-    endComunication_ = false;
+    this->endComunication_ = false;
 }
 
 /*
@@ -18,8 +18,9 @@ Client::Client(string serverIpAddress, int serverPortNumber){
 
 void Client::openClientSocket_(){
 
-    clientSocketDescriptor_ = socket(AF_INET, SOCK_STREAM, 0);
-    if(clientSocketDescriptor_ == -1) {
+    this->clientSocketDescriptor_ = socket(AF_INET, SOCK_STREAM, 0);
+
+    if(this->clientSocketDescriptor_ == -1) {
         cout << "Error: no se pudo abrir el socket" << endl;
         exit(1);
     }
@@ -49,7 +50,9 @@ void Client::requestServerConnection_(){
 
     socklen_t serverSocketDataSize;
     serverSocketDataSize = sizeof(serverSocketData_);
-    int connectionResult = connect(clientSocketDescriptor_, (struct sockaddr *) &serverSocketData_, serverSocketDataSize);
+
+    int connectionResult = connect(this->clientSocketDescriptor_, (struct sockaddr *) &this->serverSocketData_, serverSocketDataSize);
+
     if (connectionResult == -1) {
         cout << "Error: imposible contectarse" << endl;
         exit(1);
