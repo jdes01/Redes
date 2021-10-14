@@ -44,6 +44,15 @@ void Client::setServerSocketDataStructure_(string serverIpAddress, int serverPor
 
 /*
  * request server connection method
+ *
+ * connect() method:
+ * 
+ * (1º argumento, sockfd),  es el descriptor del socket devuelto por la función socket().
+ * 
+ * (2º argumento, serv_addr), estructura sockaddr que contiene la dirección IP y número de puerto destino.
+ * 
+ * (3º  argumento,  serv_addrlen),  debe  ser  inicializado  al  tamaño  de  struct  sockaddr. sizeof(struct sockaddr).
+ * 
 */
 
 void Client::requestServerConnection_(){
@@ -59,8 +68,22 @@ void Client::requestServerConnection_(){
     }
 }
 
+/*
+ * set the file descriptor structure attributes
+ *
+ * Estos macros se utilizan para manejar el conjunto fd_set que sera usado por la funcion select
+ *
+ * FD_ZERO inicializa un conjunto fd_set especificado por 'readerFileDescriptor_'
+ * 
+ * FD_SET añaden un descriptor (0 y clientSocketDescriptor) a readerFileDescriptor
+*/
 
-void Client::setFileDescriptorStructures_(){}
+void Client::setFileDescriptorStructures_(){
+
+    FD_ZERO(&this->readerFileDescriptor_);
+    FD_SET(0, &this->readerFileDescriptor_);
+    FD_SET(clientSocketDescriptor_, &this->readerFileDescriptor_);
+}
 
 
 void Client::readServerMessage_(){}
