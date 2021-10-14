@@ -3,7 +3,6 @@
 /*
  * Client constructor, will be summoned in client main program
 */
-
 Client::Client(string serverIpAddress, int serverPortNumber){
 
     openClientSocket_();
@@ -12,10 +11,12 @@ Client::Client(string serverIpAddress, int serverPortNumber){
     this->endCommunication_ = false;
 }
 
-/*
- * open client socket method; calls the socket and check for errors
-*/
 
+/*
+ * open client socket method; calls the socket functions and return the descriptor to clientSocketDescriptor; 
+ *
+ * then check for errors
+*/
 void Client::openClientSocket_(){
 
     this->clientSocketDescriptor_ = socket(AF_INET, SOCK_STREAM, 0);
@@ -26,6 +27,7 @@ void Client::openClientSocket_(){
     }
 }
 
+
 /*
  * server data structure (struct sockaddr_in serverSocketData_)
  *
@@ -34,7 +36,6 @@ void Client::openClientSocket_(){
  *  en la estructura sockaddr_in"
  * 
 */
-
 void Client::setServerSocketDataStructure_(string serverIpAddress, int serverPortNumber){
 
     serverSocketData_.sin_family = AF_INET;
@@ -42,23 +43,16 @@ void Client::setServerSocketDataStructure_(string serverIpAddress, int serverPor
     serverSocketData_.sin_addr.s_addr = inet_addr(serverIpAddress.c_str());
 }
 
+
 /*
  * request server connection method
  *
- * connect() method:
- * 
- * (1º argumento, sockfd),  es el descriptor del socket devuelto por la función socket().
- * 
- * (2º argumento, serv_addr), estructura sockaddr que contiene la dirección IP y número de puerto destino.
- * 
- * (3º  argumento,  serv_addrlen),  debe  ser  inicializado  al  tamaño  de  struct  sockaddr. sizeof(struct sockaddr).
+ * connect method use the client socket descriptot, server socket data and server socket data size
  * 
 */
-
 void Client::requestServerConnection_(){
 
-    socklen_t serverSocketDataSize;
-    serverSocketDataSize = sizeof(serverSocketData_);
+    socklen_t serverSocketDataSize = sizeof(serverSocketData_);
 
     int connectionResult = connect(this->clientSocketDescriptor_, (struct sockaddr *) &this->serverSocketData_, serverSocketDataSize);
 
@@ -68,41 +62,68 @@ void Client::requestServerConnection_(){
     }
 }
 
+
+/*
+ * start communication method
+ *
+ * FD_ISSET : macro para manjear fd_set; Mira si el descriptor de socket dado por fd se encuentra en el conjunto especificado por set. 
+*/
+void Client::startCommunication(){
+
+    while (this->endCommunication_ == false) {
+
+        setFileDescriptorStructures_(); //fd_sets
+
+        select(this->clientSocketDescriptor_ + 1, &this->fileDescriptorSet, NULL, NULL, NULL); // read from the file descriptor stored at fileDescriptorSet
+        
+        if(FD_ISSET(this->clientSocketDescriptor_, &this->fileDescriptorSet)) {
+            readServerMessage_();
+        }
+        
+        else if (FD_ISSET(0, &this->fileDescriptorSet)) {
+            sendMessageToServer_();
+        }
+    }
+
+    closeClient();
+}
+
+
 /*
  * set the file descriptor structure attributes
  *
  * Estos macros se utilizan para manejar el conjunto fd_set que sera usado por la funcion select
  *
- * FD_ZERO inicializa un conjunto fd_set especificado por 'readerFileDescriptor_'
+ * FD_ZERO This macro clears (removes all file descriptors) from set.
  * 
- * FD_SET añaden un descriptor (0 y clientSocketDescriptor) a readerFileDescriptor
+ * FD_SET añaden un descriptor (0 (escritura por teclado) y clientSocketDescriptor) a fileDescriptorSet
 */
-
 void Client::setFileDescriptorStructures_(){
 
-    FD_ZERO(&this->readerFileDescriptor_);
-    FD_SET(0, &this->readerFileDescriptor_);
-    FD_SET(clientSocketDescriptor_, &this->readerFileDescriptor_);
+    FD_ZERO(&this->fileDescriptorSet);
+
+    FD_SET(0, &this->fileDescriptorSet);                       // Watch stdin (fd 0) to see when it has input.
+    FD_SET(clientSocketDescriptor_, &this->fileDescriptorSet); // messages written from server will arrive at clientSocket
 }
+
 
 /*
  * read server message method
- * 
 */
-
 void Client::readServerMessage_(){
 
-    recv(this->clientSocketDescriptor_, this->messageBuffer_, sizeof(this->messageBuffer_), 0);
+    bzero(this->messageBuffer_, sizeof(this->messageBuffer_)); // clears the message Buffer memory
+
+    recv(this->clientSocketDescriptor_, this->messageBuffer_, sizeof(this->messageBuffer_), 0); //read from clientSocket (what comes from server)
             
     cout << this->messageBuffer_ << endl;
     handleServerErrorMessages_();
 }
 
+
 /*
  * check for the messageBuffer
- * 
 */
-
 void Client::handleServerErrorMessages_(){
 
     //string comparison: return 0 if first and second argument are equal
@@ -112,6 +133,7 @@ void Client::handleServerErrorMessages_(){
     }
 }
 
+
 /*
  * send message to server method
  *
@@ -120,8 +142,9 @@ void Client::handleServerErrorMessages_(){
  * It stops when either (n-1) characters are read, the newline character is read, 
  * or the end-of-file is reached, whichever comes first.
 */ 
-
 void Client::sendMessageToServer_(){
+
+    bzero(this->messageBuffer_, sizeof(this->messageBuffer_));
 
     // writes on messageBuffer until messafeBuffer ends or newline is written (stdin reads from terminal)
 
@@ -131,12 +154,12 @@ void Client::sendMessageToServer_(){
     send(this->clientSocketDescriptor_, this->messageBuffer_, sizeof(this->messageBuffer_), 0);
 }
 
+
 /*
  * handle client message method
  *
  * check the client message to end up communication in case of exit message
 */
-
 void Client::handleClientMessage_(){
 
     // string comparison
@@ -144,30 +167,4 @@ void Client::handleClientMessage_(){
     if(strcmp(messageBuffer_, "SALIR\n") == 0) {
         this->endCommunication_ = true;
     }
-}
-
-/*
- * start communication method
- *
- * FD_ISSET : macro para manjear fd_set; Mira si el descriptor de socket dado por fd se encuentra en el conjunto especificado por set. 
-*/
-
-void Client::startCommunication(){
-
-    while (this->endCommunication_ == false) {
-
-        setFileDescriptorStructures_();
-
-        select(this->clientSocketDescriptor_ + 1, &this->readerFileDescriptor_, NULL, NULL, NULL);
-        
-        if(FD_ISSET(this->clientSocketDescriptor_, &this->readerFileDescriptor_)) {
-            readServerMessage_();
-        }
-        
-        else if (FD_ISSET(0, &this->readerFileDescriptor_)) {
-            sendMessageToServer_();
-        }
-    }
-
-    closeClient();
 }

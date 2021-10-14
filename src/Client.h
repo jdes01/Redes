@@ -24,8 +24,9 @@ using std::endl;
 class Client {
 
     int clientSocketDescriptor_;
+    
     struct sockaddr_in serverSocketData_;   // tipo de direccion, puerto y direccion IP
-    fd_set readerFileDescriptor_;           // descriptor de readfds, que usara la funcion select
+    fd_set fileDescriptorSet;               // set de file descriptors
     char messageBuffer_[128];               // buffer de la funcion recvfrom
     bool endCommunication_;                 // Communication flag
 
