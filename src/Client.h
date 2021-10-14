@@ -15,13 +15,13 @@ using std::string;
 
 class Client {
 
-    private:
-        int clientSocketDescriptor_;
-        struct sockaddr_in serverSocketData_;   // tipo de direccion, puerto y direccion IP
-        fd_set readerFileDescriptor_;           // descriptor de readfds, que usara la funcion select
-        char messageBuffer_[128];       // buffer de la funcion recvfrom
-        bool endComunication_;
+    int clientSocketDescriptor_;
+    struct sockaddr_in serverSocketData_;   // tipo de direccion, puerto y direccion IP
+    fd_set readerFileDescriptor_;           // descriptor de readfds, que usara la funcion select
+    char messageBuffer_[128];               // buffer de la funcion recvfrom
+    bool endComunication_;                  // comunication flag
 
+    private:
         void openClientSocket_();
         void fillServerSocketDataStructure_(string serverIpAddress, int serverPortNumber);
         void requestServerConnection_();
@@ -34,6 +34,7 @@ class Client {
 
     public:
         Client(string serverIpAddress, int serverPortNumber);
+
         void startComunication();
         inline void closeClient() { close(clientSocketDescriptor_); }
 };   
