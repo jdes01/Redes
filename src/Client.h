@@ -12,6 +12,7 @@
 // htons() and inet_addr()
 #include <arpa/inet.h>
 
+#include <string>
 #include <string.h>
 using std::string;
 
