@@ -9,7 +9,7 @@ Client::Client(string serverIpAddress, int serverPortNumber){
     openClientSocket_();
     setServerSocketDataStructure_(serverIpAddress, serverPortNumber);
     requestServerConnection_();
-    this->endComunication_ = false;
+    this->endCommunication_ = false;
 }
 
 /*
@@ -85,17 +85,89 @@ void Client::setFileDescriptorStructures_(){
     FD_SET(clientSocketDescriptor_, &this->readerFileDescriptor_);
 }
 
+/*
+ * read server message method
+ * 
+*/
 
-void Client::readServerMessage_(){}
+void Client::readServerMessage_(){
 
+    recv(this->clientSocketDescriptor_, this->messageBuffer_, sizeof(this->messageBuffer_), 0);
+            
+    cout << this->messageBuffer_ << endl;
+    handleServerErrorMessages_();
+}
 
-void Client::handleServerErrorMessages_(){}
+/*
+ * check for the messageBuffer
+ * 
+*/
 
+void Client::handleServerErrorMessages_(){
 
-void Client::sendMessageToServer_(){}
+    //string comparison: return 0 if first and second argument are equal
 
+    if(strcmp(this->messageBuffer_, "Demasiados clientes conectados\n") == 0) {
+        this->endCommunication_ = true;
+    }
+}
 
-void Client::handleClientMessage_(){}
+/*
+ * send message to server method
+ *
+ * char *fgets(char *str, int n, FILE *stream) reads a line from the specified stream 
+ * and stores it into the string pointed to by str. 
+ * It stops when either (n-1) characters are read, the newline character is read, 
+ * or the end-of-file is reached, whichever comes first.
+*/ 
 
+void Client::sendMessageToServer_(){
 
-void Client::startComunication(){}
+    // writes on messageBuffer until messafeBuffer ends or newline is written (stdin reads from terminal)
+
+    fgets(this->messageBuffer_, sizeof(this->messageBuffer_), stdin);
+
+    handleClientMessage_();
+    send(this->clientSocketDescriptor_, this->messageBuffer_, sizeof(this->messageBuffer_), 0);
+}
+
+/*
+ * handle client message method
+ *
+ * check the client message to end up communication in case of exit message
+*/
+
+void Client::handleClientMessage_(){
+
+    // string comparison
+
+    if(strcmp(messageBuffer_, "SALIR\n") == 0) {
+        this->endCommunication_ = true;
+    }
+}
+
+/*
+ * start communication method
+ *
+ * FD_ISSET : macro para manjear fd_set; Mira si el descriptor de socket dado por fd se encuentra en el conjunto especificado por set. 
+*/
+
+void Client::startCommunication(){
+
+    while (this->endCommunication_ == false) {
+
+        setFileDescriptorStructures_();
+
+        select(this->clientSocketDescriptor_ + 1, &this->readerFileDescriptor_, NULL, NULL, NULL);
+        
+        if(FD_ISSET(this->clientSocketDescriptor_, &this->readerFileDescriptor_)) {
+            readServerMessage_();
+        }
+        
+        else if (FD_ISSET(0, &this->readerFileDescriptor_)) {
+            sendMessageToServer_();
+        }
+    }
+
+    closeClient();
+}

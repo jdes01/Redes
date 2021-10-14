@@ -12,7 +12,7 @@
 // htons() and inet_addr()
 #include <arpa/inet.h>
 
-#include <string>
+#include <string.h>
 using std::string;
 
 #include <iostream>
@@ -26,7 +26,7 @@ class Client {
     struct sockaddr_in serverSocketData_;   // tipo de direccion, puerto y direccion IP
     fd_set readerFileDescriptor_;           // descriptor de readfds, que usara la funcion select
     char messageBuffer_[128];               // buffer de la funcion recvfrom
-    bool endComunication_;                  // comunication flag
+    bool endCommunication_;                 // Communication flag
 
     private:
         void openClientSocket_();
@@ -42,7 +42,7 @@ class Client {
     public:
         Client(string serverIpAddress, int serverPortNumber);
 
-        void startComunication();
+        void startCommunication();
         inline void closeClient() { close(clientSocketDescriptor_); }
 };   
 
