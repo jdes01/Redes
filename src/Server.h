@@ -49,13 +49,13 @@ class Server {
     private:
         int serverSocketDescriptor_;
         int newClientSocketDescriptor_;
+
+        int serverCapacity_;
         
         struct sockaddr_in serverSocketData_;   // tipo de direccion, puerto y direccion IP
         struct sockaddr_in clientSocketData_;   // tipo de direccion, puerto y direccion IP
         
         socklen_t clientSocketDataSize_;
-                
-        int numberOfClients_;
         
         char messageBuffer_[BUFFER_SIZE];
         
@@ -67,13 +67,6 @@ class Server {
         
         fd_set readerFileDescriptor_;
         fd_set auxiliarFileDescriptor_;
-        
-        // Constructor
-        void openServerSocket_();
-        void fillServerSocketDataStructure_(int serverPortNumber);
-        void assingServerAddressToServerSocket_();
-        void markServerSocketAsPassiveSocket_();
-        void setFileDescriptorStructures_();
         
 
         // startServer

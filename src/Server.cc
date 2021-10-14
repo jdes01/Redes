@@ -1,18 +1,45 @@
 #include "Server.h"
 
-Server::Server(int serverPort) {}
+Server::Server(int serverPort) {
 
-void Server::openServerSocket_() {}
+    // Open server socket:
 
-void Server::fillServerSocketDataStructure_(int serverPortNumber) {}
+    this->serverSocketDescriptor_ = socket (AF_INET, SOCK_STREAM, 0);
+    if(this->serverSocketDescriptor_ == -1) {
+        cout << "No se pudo abrir el socket del servidor" << endl;
+        exit(1);
+    }
 
-void Server::assingServerAddressToServerSocket_() {}
+    // Set server socket data structure
 
-void Server::markServerSocketAsPassiveSocket_() {}
+    serverSocketData_.sin_family = AF_INET;
+    serverSocketData_.sin_addr.s_addr = INADDR_ANY;
+    serverSocketData_.sin_port = htons(serverPort);
 
-void Server::recreateFileDescriptor_() {}
+    // Assign server address to server socket
+
+    socklen_t serverSocketDataSize = sizeof(serverSocketData_);
+    int bindResult = bind(serverSocketDescriptor_, (struct sockaddr *) &serverSocketData_, serverSocketDataSize);
+    if (bindResult == -1) {
+		cout << "Error with bind operation" << endl;
+		exit(1);
+	}
+
+    // Mark server socket as pasive socket
+
+    int listenResult = listen(serverSocketDescriptor_, MAX_CLIENTS);
+    if(listenResult == -1) {
+        cout << "Error with listen operation" << endl;
+        exit(1);
+    }
+}
+
 
 void Server::startServer() {}
+
+
+
+void Server::recreateFileDescriptor_() {}
 
 void Server::handleNewClient_() {}
 
