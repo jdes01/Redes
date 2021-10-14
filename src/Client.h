@@ -9,6 +9,9 @@
 // close()
 #include <unistd.h>
 
+// htons() and inet_addr()
+#include <arpa/inet.h>
+
 #include <string>
 using std::string;
 
@@ -27,7 +30,7 @@ class Client {
 
     private:
         void openClientSocket_();
-        void fillServerSocketDataStructure_(string serverIpAddress, int serverPortNumber);
+        void setServerSocketDataStructure_(string serverIpAddress, int serverPortNumber);
         void requestServerConnection_();
         void setFileDescriptorStructures_();
 

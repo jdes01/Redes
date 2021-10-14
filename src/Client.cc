@@ -7,13 +7,13 @@
 Client::Client(string serverIpAddress, int serverPortNumber){
 
     openClientSocket_();
-    fillServerSocketDataStructure_(serverIpAddress, serverPortNumber);
+    setServerSocketDataStructure_(serverIpAddress, serverPortNumber);
     requestServerConnection_();
     endComunication_ = false;
 }
 
 /*
- * open client socket method
+ * open client socket method; calls the socket and check for errors
 */
 
 void Client::openClientSocket_(){
@@ -25,8 +25,21 @@ void Client::openClientSocket_(){
     }
 }
 
+/*
+ * server data structure (struct sockaddr_in serverSocketData_)
+ *
+ * "inet_addr, que realiza una conversión de las cadenas de 
+ *  caracteres de la dirección IP en el formato convencional al formato adecuado para ser utilizado 
+ *  en la estructura sockaddr_in"
+ * 
+*/
 
-void Client::fillServerSocketDataStructure_(string serverIpAddress, int serverPortNumber){}
+void Client::setServerSocketDataStructure_(string serverIpAddress, int serverPortNumber){
+
+    serverSocketData_.sin_family = AF_INET;
+    serverSocketData_.sin_port = htons(serverPortNumber);
+    serverSocketData_.sin_addr.s_addr = inet_addr(serverIpAddress.c_str());
+}
 
 
 void Client::requestServerConnection_(){}
