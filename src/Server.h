@@ -39,6 +39,11 @@ using std::size_t;
 using std::cout;
 using std::endl;
 
+#include <regex>
+
+#include <fstream>
+using std::ofstream;
+
 // Pasapalabra Classes
 #include "PasaPalabraGameHandler.h"
 #include "PasaPalabraGame.h"
@@ -60,12 +65,12 @@ class Server {
         char messageBuffer_[BUFFER_SIZE];
         
         //vector <PasaPalabraGameHandler> Games_;
-        vector <std::future <int> > Threads_;
+        vector <std::future <int> > threads_;
 
         vector <int> clientsConnected_;
         vector <int> playersQueue_;
         
-        fd_set readerFileDescriptor_;
+        fd_set fileDescriptorSet_;
         fd_set auxiliarFileDescriptor_;
         
 
@@ -75,13 +80,19 @@ class Server {
         void addClientToServer_();
         void sendTooManyClientsMessageToNewClient_();
         void exitClient_(int clientSocketDescriptor);
-        void clientMessageHandler_(int socketID);
+        void clientMessageHandler_(int socketID, const char* message);
         void searchMatchForClient_(int clientSocketDescriptor);
         void sendMessageBufferToAllPlayers_(vector <int> gamePlayers);
         void createDominoGame_(vector <int> gamePlayers);
         void eraseClientsReadyForGame_(vector <int> gamePlayers);
         void serverMessageHandler_();
         void closeServer_();
+
+        bool isClientLogged(int clientSocketDescriptor);
+
+        void registerUser(string userName, string password);
+
+        int logInClient(int clientSocketDescriptor, string userName);
 
     public:
         Server(int serverPort);
