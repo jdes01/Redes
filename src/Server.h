@@ -46,8 +46,7 @@ using std::endl;
 using std::ofstream;
 
 // Pasapalabra Classes
-#include "PasaPalabraGameHandler.h"
-#include "PasaPalabraGame.h"
+#include "FillMissingLettersGame.h"
 #include "Player.h"
 
 class Server {
