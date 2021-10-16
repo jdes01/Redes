@@ -32,6 +32,7 @@ using std::string;
 
 // STL Data Types
 #include <vector>
+#include <algorithm>
 using std::vector;
 using std::size_t;
 
@@ -77,7 +78,7 @@ class Server {
         // startServer
         void recreateFileDescriptor_();
         void handleNewClient_();
-        void addClientToServer_();
+        void addClientToServer_(int newClientSocketDescriptor);
         void sendTooManyClientsMessageToNewClient_();
         void exitClient_(int clientSocketDescriptor);
         void clientMessageHandler_(int socketID, const char* message);
@@ -99,7 +100,6 @@ class Server {
     public:
         Server(int serverPort);
         void startServer();
-        void addClientsToServer(vector <int> clientsToAdd);
 };   
 
 
