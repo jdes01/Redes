@@ -242,10 +242,14 @@ void Server::searchMatchForClient_(int clientSocketDescriptor) {
                     playersQueue_.erase(std::remove(playersQueue_.begin(), playersQueue_.end(), adversary), playersQueue_.end());
 
                     adversaryFound = true;
+                        
+                        pid_t pid = fork();
 
-                    FillMissingLettersGame game(clientSocketDescriptor, adversary);
-                    
-                    game.startGame();
+                        if(pid == 0){
+                            
+                            FillMissingLettersGame game(clientSocketDescriptor, adversary, this->serverSocketDescriptor_);
+                            game.startGame();
+                        }
 
                     break;
                 }
