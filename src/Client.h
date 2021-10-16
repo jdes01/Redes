@@ -23,7 +23,7 @@ using std::endl;
 
 class Client {
 
-    int clientSocketDescriptor_;
+    int clientSocketDescriptor_;            // integer (-1 if something went wrong)
     
     struct sockaddr_in serverSocketData_;   // tipo de direccion, puerto y direccion IP
     fd_set fileDescriptorSet;               // set de file descriptors

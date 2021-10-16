@@ -52,7 +52,7 @@ void Client::setServerSocketDataStructure_(string serverIpAddress, int serverPor
 */
 void Client::requestServerConnection_(){
 
-    socklen_t serverSocketDataSize = sizeof(serverSocketData_);
+    socklen_t serverSocketDataSize = sizeof(this->serverSocketData_);
 
     int connectionResult = connect(this->clientSocketDescriptor_, (struct sockaddr *) &this->serverSocketData_, serverSocketDataSize);
 
@@ -100,10 +100,10 @@ void Client::startCommunication(){
 */
 void Client::setFileDescriptorStructures_(){
 
-    FD_ZERO(&this->fileDescriptorSet);
+    FD_ZERO(&this->fileDescriptorSet); // clears the file descriptor set
 
-    FD_SET(0, &this->fileDescriptorSet);                       // Watch stdin (fd 0) to see when it has input.
-    FD_SET(clientSocketDescriptor_, &this->fileDescriptorSet); // messages written from server will arrive at clientSocket
+    FD_SET(0, &this->fileDescriptorSet);                       // add stdin (file descriptor 0) to fileDescriptorSet tp see when it has input.
+    FD_SET(this->clientSocketDescriptor_, &this->fileDescriptorSet); // add client socket descriptor to the set because messages written from server will arrive at clientSocket
 }
 
 
@@ -164,7 +164,7 @@ void Client::handleClientMessage_(){
 
     // string comparison
 
-    if(strcmp(messageBuffer_, "SALIR\n") == 0) {
+    if(strcmp(messageBuffer_, "EXIT\n") == 0) {
         this->endCommunication_ = true;
     }
 }
