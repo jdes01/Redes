@@ -12,14 +12,15 @@ Server::Server(int serverPort) {
 
     // Set server socket data structure
 
-    serverSocketData_.sin_family = AF_INET;
-    serverSocketData_.sin_addr.s_addr = INADDR_ANY;
-    serverSocketData_.sin_port = htons(serverPort);
+    this->serverSocketData_.sin_family = AF_INET;
+    this->serverSocketData_.sin_addr.s_addr = INADDR_ANY;
+    this->serverSocketData_.sin_port = htons(serverPort);
 
     // Assign server address to server socket
 
-    socklen_t serverSocketDataSize = sizeof(serverSocketData_);
-    int bindResult = bind(serverSocketDescriptor_, (struct sockaddr *) &serverSocketData_, serverSocketDataSize);
+    socklen_t serverSocketDataSize = sizeof(this->serverSocketData_);
+
+    int bindResult = bind(serverSocketDescriptor_, (struct sockaddr *) &this->serverSocketData_, serverSocketDataSize);
     if (bindResult == -1) {
 		cout << "Error with bind operation" << endl;
 		exit(1);
@@ -32,8 +33,6 @@ Server::Server(int serverPort) {
         cout << "Error with listen operation" << endl;
         exit(1);
     }
-
-    // atm it lands here
 }
 
 
@@ -41,27 +40,25 @@ void Server::startServer() {
 
     while (true) {
 
-        //struct timespec time;
-        //time.tv_sec=10;
-
-        // updates file descriptor set; It will contain file descriptors for every client socket from clientsConnected clients array
+        cout << "1" <<endl;
 
         recreateFileDescriptor_();
+
+        cout << "2" <<endl;
     
-        //pselect(FD_SETSIZE, &this->fileDescriptorSet_, NULL, NULL, &time, NULL);
         select(FD_SETSIZE, &this->fileDescriptorSet_, NULL, NULL, NULL);
+
+        cout << "3" <<endl;
 
         // iterate on clientsConnected array
 
         for (auto clientSocketDescriptor = this->clientsConnected_.begin(); clientSocketDescriptor != this->clientsConnected_.end(); ++clientSocketDescriptor) {
 
-            // in case they wrote and recv reads something, clientMessageHandler will handle it
-
-            cout << "there are clients added in the clientsConnected array" <<endl;
+            cout << "detecct activity on one of connected clients" <<endl;
 
             if (FD_ISSET(*clientSocketDescriptor, &fileDescriptorSet_)) {
 
-                cout << "waits for a client activity" <<endl;
+                cout << "client was found, now recv his activity" <<endl;
 
                 if ((recv(*clientSocketDescriptor, &messageBuffer_, BUFFER_SIZE, 0) > 0)) {
 
@@ -75,12 +72,10 @@ void Server::startServer() {
         // it enters here the very first time server starts
 
         if (FD_ISSET(this->serverSocketDescriptor_, &this->fileDescriptorSet_)) {
-            cout << "checks for server socker activity" <<endl;
+            cout << "detect server socket activity" <<endl;
             handleNewClient_();
             cout << "comes out of handleNewClient function" <<endl;
         }
-
-        
 
         /*
             if(FD_ISSET(0, &readerFileDescriptor_)) {
@@ -103,6 +98,7 @@ void Server::recreateFileDescriptor_() {
     FD_SET(this->serverSocketDescriptor_, &this->fileDescriptorSet_); // messages written from client will arrive at server socket
 
     for (auto clientSocketDescriptor = this->clientsConnected_.begin(); clientSocketDescriptor != this->clientsConnected_.end(); ++clientSocketDescriptor) {
+        cout << "x" <<endl;
         FD_SET(*clientSocketDescriptor, &this->fileDescriptorSet_);
     }
 }
@@ -114,12 +110,13 @@ void Server::clientMessageHandler_(int clientSocketDescriptor, const char* messa
 
     cout << "Client: " << clientSocketDescriptor << " sent: " << message << endl;
 
-    if(strcmp(message, "EXIT") == 0){   
+    if(strcmp(message, "EXIT\n") == 0){   
 
         exitClient_(clientSocketDescriptor);
     
+    } else if (strcmp(message, "INICIAR-PARTIDA\n") == 0){
 
-    } else if (strcmp(message, "INICIAR-PARTIDA") == 0){
+        cout << "!!!!" << endl;
 
         if(isClientLogged(clientSocketDescriptor)) {
 
@@ -143,12 +140,6 @@ void Server::clientMessageHandler_(int clientSocketDescriptor, const char* messa
 
             send(clientSocketDescriptor, "Ok, Esperando Contraseña", BUFFER_SIZE, 0);
 
-            /*
-            this->threads_.push_back(std::async(std::launch::async, [this, clientSocketDescriptor, RegexMatches]{
-                return logInClient(clientSocketDescriptor, RegexMatches.str(1));
-            }));
-            */
-
            if ((recv(clientSocketDescriptor, &messageBuffer_, BUFFER_SIZE, 0) > 0)) {
 
                 if(std::regex_search(messageBuffer_, RegexMatches, std::regex("PASSWORD (.*)"))){
@@ -165,29 +156,70 @@ void Server::clientMessageHandler_(int clientSocketDescriptor, const char* messa
 
 void Server::handleNewClient_() {
 
-    cout << "waits for new client" << endl;
+    cout << "Handle new client" << endl;
 
     newClientSocketDescriptor_ = accept(serverSocketDescriptor_, (struct sockaddr *) &clientSocketData_ , &clientSocketDataSize_);
 
     if(newClientSocketDescriptor_ == -1) {
         cout << "Error accepting requests" << endl;
         exit(1);
-    }
-
-    else if(numberOfClients_ < MAX_CLIENTS) {
-        cout << "it goes to add client to server function" <<endl;
-        addClientToServer_();
-    }
     
-    else {
+    } else if(numberOfClients_ < MAX_CLIENTS) {
+
+        if( registerOrLoginProcess(newClientSocketDescriptor_) == 0 ){
+            send(newClientSocketDescriptor_, "jugador expulsado", BUFFER_SIZE, 0);
+            exitClient_(newClientSocketDescriptor_);
+            
+        } else{
+            cout << "it goes to add client to server function" <<endl;
+            addClientToServer_();
+        }
+    
+    } else {
         sendTooManyClientsMessageToNewClient_();
     }
+}
+
+
+int Server::registerOrLoginProcess(int newClientSocketDescriptor_){
+
+    std::cmatch RegexMatches;
+
+    send(newClientSocketDescriptor_, "Elige si quieres registrarte (r) o loguearte (l)", BUFFER_SIZE, 0);
+    recv(newClientSocketDescriptor_, &messageBuffer_, BUFFER_SIZE, 0);
+
+    if (strcmp(messageBuffer_, "l\n") == 0){
+
+        send(newClientSocketDescriptor_, "Indique su usuario: (USUARIO xxx)", BUFFER_SIZE, 0);
+        recv(newClientSocketDescriptor_, &messageBuffer_, BUFFER_SIZE, 0);
+
+        if( std::regex_search(messageBuffer_, RegexMatches, std::regex("USUARIO (.*)")) ){
+
+            send(newClientSocketDescriptor_, "Ahora indique su password: (PASSWORD xxx)", BUFFER_SIZE, 0);
+            recv(newClientSocketDescriptor_, &messageBuffer_, BUFFER_SIZE, 0);
+
+            if(std::regex_search(messageBuffer_, RegexMatches, std::regex("PASSWORD (.*)"))){
+
+                    //logInClient(newClientSocketDescriptor_, RegexMatches.str(1)); // TODO: need to login
+                    return 1;
+            }
+
+        }
+    }
+    if (strcmp(messageBuffer_, "r\n") == 0){
+
+        send(newClientSocketDescriptor_, "jugador registrado", BUFFER_SIZE, 0);
+        return 1;
+    }
+
+    return 0;
 }
 
 
 void Server::addClientToServer_() {
 
     clientsConnected_.push_back(newClientSocketDescriptor_);
+    FD_SET(newClientSocketDescriptor_, &this->fileDescriptorSet_);   
     numberOfClients_++;
     sprintf(messageBuffer_, "Welcome To Server");
     send(newClientSocketDescriptor_, messageBuffer_, BUFFER_SIZE, 0);
@@ -233,7 +265,15 @@ void Server::addClientsToServer(vector <int> clientsToAdd) {}
 
 void Server::sendTooManyClientsMessageToNewClient_() {}
 
-void Server::exitClient_(int clientSocketDescriptor) {}
+
+void Server::exitClient_(int clientSocketDescriptor) {
+
+    sprintf(messageBuffer_, "You are going to exit the server\n");
+    send(clientSocketDescriptor, messageBuffer_, BUFFER_SIZE, 0);
+    close(clientSocketDescriptor);
+    FD_CLR(clientSocketDescriptor, &this->fileDescriptorSet_);
+}
+
 
 void Server::sendMessageBufferToAllPlayers_(vector <int> gamePlayers) {}
 

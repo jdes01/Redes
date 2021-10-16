@@ -55,8 +55,6 @@ class Server {
         int serverSocketDescriptor_;
         int newClientSocketDescriptor_;
 
-        int serverCapacity_;
-
         int numberOfClients_;
         
         struct sockaddr_in serverSocketData_;   // tipo de direccion, puerto y direccion IP
@@ -95,6 +93,8 @@ class Server {
         void registerUser(string userName, string password);
 
         int logInClient(int clientSocketDescriptor, string userName);
+
+        int registerOrLoginProcess(int newClientSocketDescriptor_); //1 success 0 error
 
     public:
         Server(int serverPort);
