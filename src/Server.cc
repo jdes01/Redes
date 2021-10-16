@@ -208,8 +208,14 @@ int Server::registerOrLoginProcess(int newClientSocketDescriptor_){
     }
     if (strcmp(messageBuffer_, "r\n") == 0){
 
-        send(newClientSocketDescriptor_, "jugador registrado", BUFFER_SIZE, 0);
-        return 1;
+        send(newClientSocketDescriptor_, "Indique su usuario y contrasena (REGISTRO -u user -p pass)", BUFFER_SIZE, 0);
+        recv(newClientSocketDescriptor_, &messageBuffer_, BUFFER_SIZE, 0);
+        if(std::regex_search(messageBuffer_, RegexMatches, std::regex("REGISTRO -u (.*) -p (.*)"))){
+
+            //write user in users.txt
+            return 1;
+        }
+        return 0;
     }
 
     return 0;
