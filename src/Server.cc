@@ -32,6 +32,8 @@ Server::Server(int serverPort) {
         cout << "Error with listen operation" << endl;
         exit(1);
     }
+
+    // atm it lands here
 }
 
 
@@ -39,18 +41,27 @@ void Server::startServer() {
 
     while (true) {
 
+        //struct timespec time;
+        //time.tv_sec=10;
+
         // updates file descriptor set; It will contain file descriptors for every client socket from clientsConnected clients array
 
         recreateFileDescriptor_();
-        select(FD_SETSIZE, &fileDescriptorSet_, NULL, NULL, NULL);
+    
+        //pselect(FD_SETSIZE, &this->fileDescriptorSet_, NULL, NULL, &time, NULL);
+        select(FD_SETSIZE, &this->fileDescriptorSet_, NULL, NULL, NULL);
 
         // iterate on clientsConnected array
 
-        for (auto clientSocketDescriptor = clientsConnected_.begin(); clientSocketDescriptor != clientsConnected_.end(); ++clientSocketDescriptor) {
+        for (auto clientSocketDescriptor = this->clientsConnected_.begin(); clientSocketDescriptor != this->clientsConnected_.end(); ++clientSocketDescriptor) {
 
             // in case they wrote and recv reads something, clientMessageHandler will handle it
 
+            cout << "there are clients added in the clientsConnected array" <<endl;
+
             if (FD_ISSET(*clientSocketDescriptor, &fileDescriptorSet_)) {
+
+                cout << "waits for a client activity" <<endl;
 
                 if ((recv(*clientSocketDescriptor, &messageBuffer_, BUFFER_SIZE, 0) > 0)) {
 
@@ -60,11 +71,16 @@ void Server::startServer() {
             }
         }
 
-        // in case that new message arrives at server Socket (sent from a client socket)
+        // in case that new message arrives at server Socket (sent from a client socket);
+        // it enters here the very first time server starts
 
-        if (FD_ISSET(serverSocketDescriptor_, &fileDescriptorSet_)) {
+        if (FD_ISSET(this->serverSocketDescriptor_, &this->fileDescriptorSet_)) {
+            cout << "checks for server socker activity" <<endl;
             handleNewClient_();
+            cout << "comes out of handleNewClient function" <<endl;
         }
+
+        
 
         /*
             if(FD_ISSET(0, &readerFileDescriptor_)) {
@@ -81,13 +97,13 @@ void Server::startServer() {
 
 void Server::recreateFileDescriptor_() {
 
-    FD_ZERO(&fileDescriptorSet_); // clears file descriptor set
+    FD_ZERO(&this->fileDescriptorSet_); // clears file descriptor set
 
-    FD_SET(0, &fileDescriptorSet_);                       // Watch stdin (fd 0) to see when it has input. 
-    FD_SET(serverSocketDescriptor_, &fileDescriptorSet_); // messages written from client will arrive at server socket
+    FD_SET(0, &this->fileDescriptorSet_);                       // Watch stdin (fd 0) to see when it has input. 
+    FD_SET(this->serverSocketDescriptor_, &this->fileDescriptorSet_); // messages written from client will arrive at server socket
 
-    for (auto clientSocketDescriptor = clientsConnected_.begin(); clientSocketDescriptor != clientsConnected_.end(); ++clientSocketDescriptor) {
-        FD_SET(*clientSocketDescriptor, &fileDescriptorSet_);
+    for (auto clientSocketDescriptor = this->clientsConnected_.begin(); clientSocketDescriptor != this->clientsConnected_.end(); ++clientSocketDescriptor) {
+        FD_SET(*clientSocketDescriptor, &this->fileDescriptorSet_);
     }
 }
 
@@ -98,7 +114,7 @@ void Server::clientMessageHandler_(int clientSocketDescriptor, const char* messa
 
     cout << "Client: " << clientSocketDescriptor << " sent: " << message << endl;
 
-    if(strcmp(message, "EXIT\n") == 0){   
+    if(strcmp(message, "EXIT") == 0){   
 
         exitClient_(clientSocketDescriptor);
     
@@ -146,6 +162,39 @@ void Server::clientMessageHandler_(int clientSocketDescriptor, const char* messa
     }
 }
 
+
+void Server::handleNewClient_() {
+
+    cout << "waits for new client" << endl;
+
+    newClientSocketDescriptor_ = accept(serverSocketDescriptor_, (struct sockaddr *) &clientSocketData_ , &clientSocketDataSize_);
+
+    if(newClientSocketDescriptor_ == -1) {
+        cout << "Error accepting requests" << endl;
+        exit(1);
+    }
+
+    else if(numberOfClients_ < MAX_CLIENTS) {
+        cout << "it goes to add client to server function" <<endl;
+        addClientToServer_();
+    }
+    
+    else {
+        sendTooManyClientsMessageToNewClient_();
+    }
+}
+
+
+void Server::addClientToServer_() {
+
+    clientsConnected_.push_back(newClientSocketDescriptor_);
+    numberOfClients_++;
+    sprintf(messageBuffer_, "Welcome To Server");
+    send(newClientSocketDescriptor_, messageBuffer_, BUFFER_SIZE, 0);
+    cout << "Client was added to clientsConnected array" << endl;
+}
+
+
 bool Server::isClientLogged(int clientSocketDescriptor){
 
     for(auto loggedClient: this->clientsConnected_){
@@ -158,7 +207,7 @@ bool Server::isClientLogged(int clientSocketDescriptor){
 
 int Server::logInClient(int clientSocketDescriptor, string userName){
 
-
+    return 0;
 }
 
 
@@ -178,9 +227,7 @@ void Server::registerUser(string userName, string password){
 }
 
 
-void Server::handleNewClient_() {}
 
-void Server::addClientToServer_() {}
 
 void Server::addClientsToServer(vector <int> clientsToAdd) {}
 

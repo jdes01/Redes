@@ -56,6 +56,8 @@ class Server {
         int newClientSocketDescriptor_;
 
         int serverCapacity_;
+
+        int numberOfClients_;
         
         struct sockaddr_in serverSocketData_;   // tipo de direccion, puerto y direccion IP
         struct sockaddr_in clientSocketData_;   // tipo de direccion, puerto y direccion IP
