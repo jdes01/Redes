@@ -124,32 +124,6 @@ void Server::clientMessageHandler_(int clientSocketDescriptor, const char* messa
         
         } else { send(clientSocketDescriptor, "-ERR. Te tienes que Loggear Primero", BUFFER_SIZE, 0); }
 
-
-    } else if(std::regex_search(message, RegexMatches, std::regex("REGISTRO -u (.*) -p (.*)"))){
-
-        if(isClientLogged(clientSocketDescriptor) == false){
-
-            registerUser(RegexMatches.str(1), RegexMatches.str(2));
-        
-        } else{ send(clientSocketDescriptor, "-ERR. Ya estas Logueado", BUFFER_SIZE, 0); }
-
-
-    }  else if(std::regex_search(message, RegexMatches, std::regex("USUARIO (.*)"))){
-
-        if(isClientLogged(clientSocketDescriptor) == false){
-
-            send(clientSocketDescriptor, "Ok, Esperando Contraseña", BUFFER_SIZE, 0);
-
-           if ((recv(clientSocketDescriptor, &messageBuffer_, BUFFER_SIZE, 0) > 0)) {
-
-                if(std::regex_search(messageBuffer_, RegexMatches, std::regex("PASSWORD (.*)"))){
-
-                    logInClient(clientSocketDescriptor, RegexMatches.str(1)); // TODO: need to login
-                }
-
-            } else { send(clientSocketDescriptor, "-ERR. Formato para la password incorrecto", BUFFER_SIZE, 0); }
-        
-        } else { send(clientSocketDescriptor, "-ERR. Ya estas Logueado", BUFFER_SIZE, 0); }
     }
 }
 
@@ -195,14 +169,17 @@ int Server::registerOrLoginProcess(int newClientSocketDescriptor_){
 
         if( std::regex_search(messageBuffer_, RegexMatches, std::regex("USUARIO (.*)")) ){
 
-            send(newClientSocketDescriptor_, "Ahora indique su password: (PASSWORD xxx)", BUFFER_SIZE, 0);
-            recv(newClientSocketDescriptor_, &messageBuffer_, BUFFER_SIZE, 0);
+            //if(isClientLogged(clientSocketDescriptor) == false){
 
-            if(std::regex_search(messageBuffer_, RegexMatches, std::regex("PASSWORD (.*)"))){
+                send(newClientSocketDescriptor_, "Ahora indique su password: (PASSWORD xxx)", BUFFER_SIZE, 0);
+                recv(newClientSocketDescriptor_, &messageBuffer_, BUFFER_SIZE, 0);
+
+                if(std::regex_search(messageBuffer_, RegexMatches, std::regex("PASSWORD (.*)"))){
 
                     //logInClient(newClientSocketDescriptor_, RegexMatches.str(1)); // TODO: need to login
                     return 1;
-            }
+                }
+            //}
 
         }
     }
@@ -212,6 +189,7 @@ int Server::registerOrLoginProcess(int newClientSocketDescriptor_){
         recv(newClientSocketDescriptor_, &messageBuffer_, BUFFER_SIZE, 0);
         if(std::regex_search(messageBuffer_, RegexMatches, std::regex("REGISTRO -u (.*) -p (.*)"))){
 
+            //registerUser(RegexMatches.str(1), RegexMatches.str(2));
             //write user in users.txt
             return 1;
         }
