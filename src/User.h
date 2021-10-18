@@ -1,4 +1,3 @@
-
 #ifndef USER_H
 #define USER_H
 
@@ -19,8 +18,6 @@ class User {
         bool isInGame_;
 
         int adversaryId_;
-
-        FillMissingLettersGame game_;
 
     public:
         User(int clientSocketDescriptor);
@@ -46,9 +43,6 @@ class User {
 
          int getAdversaryId(){ return adversaryId_; }
         void setAdversaryId(int id){ this->adversaryId_ = id; }
-
-        FillMissingLettersGame getGame(){ return this->game_; }
-        void setGame(FillMissingLettersGame game){ this->game_ = game; }
 
 };
 #endif

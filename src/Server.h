@@ -48,8 +48,7 @@ using std::endl;
 using std::ofstream;
 
 // Game Classes
-#include "FillMissingLettersGame.cc"
-
+#include "FillMissingLettersGame.h"
 #include "User.h"
 
 class Server {

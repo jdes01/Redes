@@ -1,5 +1,5 @@
-#ifndef FILL_MISSING_LETTERS_GAME_H
-#define FILL_MISSING_LETTERS_GAME_H
+#ifndef FILLMISSINGLETTERSGAME_H
+#define FILLMISSINGLETTERSGAME_H
 
 #define BUFFER_SIZE 128
 
@@ -10,6 +10,10 @@
 // socket() and macros
 #include <sys/types.h>
 #include <sys/socket.h>
+
+// String
+#include <string>
+using std::string;
 
 class FillMissingLettersGame{
 
@@ -40,7 +44,7 @@ class FillMissingLettersGame{
 
          int getGameId(){ return this->gameId_; }
         void setGameId(int id){ this->gameId_ = id; }
-
+        
         void checkVocal(string vocal);
 
         string getGameSentence(){ return this->gameSentence_; }

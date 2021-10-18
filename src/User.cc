@@ -1,6 +1,6 @@
 #include "User.h"
 
-User::User(int clientSocketDescriptor){
+User::User(int clientSocketDescriptor) {
 
     this->clientSocketDescriptor_ = clientSocketDescriptor;
     this->isUserNameChecked_ = false;
