@@ -164,6 +164,9 @@ void Server::clientMessageHandler_(User &user, const char* message) {
             send(user.getClientSocketDescriptor(), "se va a buscar partida", BUFFER_SIZE, 0);
             searchMatchForClient_(user); 
         }
+    } else if (user.isInGame() == true){
+            send(user.getAdversaryId(), message, BUFFER_SIZE, 0);
+
     }
     
 }
@@ -289,8 +292,11 @@ void Server::searchMatchForClient_(User &user) {
 
                     adversaryFound = true;
 
-                        FillMissingLettersGame game(user.getClientSocketDescriptor(), adversary.getClientSocketDescriptor(), this->serverSocketDescriptor_);
-                        game.startGame(); 
+                    user.setAdversaryId(adversary.getClientSocketDescriptor());
+                    adversary.setAdversaryId(user.getClientSocketDescriptor());
+
+                        //FillMissingLettersGame game(user.getClientSocketDescriptor(), adversary.getClientSocketDescriptor(), this->serverSocketDescriptor_);
+                        //game.startGame(); 
 
                         //this->mMatches.push_back(game);     
 

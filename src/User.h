@@ -17,6 +17,8 @@ class User {
 
         bool isInGame_;
 
+        int adversaryId_;
+
     public:
         User(int clientSocketDescriptor);
         int getClientSocketDescriptor(){ return this->clientSocketDescriptor_; }
@@ -38,6 +40,9 @@ class User {
 
         bool isUserNameChecked(){ return isUserNameChecked_; }
         bool isPasswordChecked(){ return isPasswordChecked_; }
+
+         int getAdversaryId(){ return adversaryId_; }
+        void setAdversaryId(int id){ this->adversaryId_ = id; }
 
 };
 #endif
