@@ -48,6 +48,8 @@ using std::ofstream;
 // Game Classes
 #include "FillMissingLettersGame.cc"
 
+#include "User.h"
+
 class Server {
 
     private:
@@ -63,11 +65,7 @@ class Server {
         
         char messageBuffer_[BUFFER_SIZE];
         
-        //vector <PasaPalabraGameHandler> Games_;
-        vector <std::future <int> > threads_;
-
-        vector <int> clientsConnected_;
-        vector <int> playersQueue_;
+        vector <User> usersConnected_;
         
         fd_set fileDescriptorSet_;
         fd_set auxiliarFileDescriptor_;
@@ -79,11 +77,10 @@ class Server {
         void addClientToServer_(int newClientSocketDescriptor);
         void sendTooManyClientsMessageToNewClient_();
         void exitClient_(int clientSocketDescriptor);
-        void clientMessageHandler_(int socketID, const char* message);
-        void searchMatchForClient_(int clientSocketDescriptor);
-        void sendMessageBufferToAllPlayers_(vector <int> gamePlayers);
-        void createDominoGame_(vector <int> gamePlayers);
-        void eraseClientsReadyForGame_(vector <int> gamePlayers);
+
+        void clientMessageHandler_(User &user, const char* message);
+        
+        void searchMatchForClient_(User user);
         void serverMessageHandler_();
         void closeServer_();
 
@@ -91,9 +88,13 @@ class Server {
 
         void registerUser(string userName, string password);
 
-        int logInClient(int clientSocketDescriptor, string userName);
+        int logInClient(int clientSocketDescriptor);
 
         int registerOrLoginProcess(int newClientSocketDescriptor_); //1 success 0 error
+
+        void addUserToFile(User user);
+
+        bool checkIfUserIsWritten(string userName, string password);
 
     public:
         Server(int serverPort);
