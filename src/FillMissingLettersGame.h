@@ -3,14 +3,13 @@
 
 #define BUFFER_SIZE 128
 
+
 // select() and fd_set
 #include <sys/select.h>
 
 // socket() and macros
 #include <sys/types.h>
 #include <sys/socket.h>
-
-#include "Server.h"
 
 class FillMissingLettersGame{
 
@@ -39,7 +38,7 @@ class FillMissingLettersGame{
         FillMissingLettersGame(int id, int player1_SocketDescriptor, int player2_SocketDescriptor, int server_SocketDescriptor);
         void startGame();
 
-        int getGameId(){ return this->gameId_; }
+         int getGameId(){ return this->gameId_; }
         void setGameId(int id){ this->gameId_ = id; }
 
         void checkVocal(string vocal);

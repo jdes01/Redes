@@ -12,7 +12,7 @@ FillMissingLettersGame::FillMissingLettersGame(int id, int player1_SocketDescrip
     send(player2_SocketDescriptor_, "\n LA PARTIDA VA A COMENZAR", BUFFER_SIZE, 0);
 
     send(player1_SocketDescriptor_, "\n LA FRASE ES ESTA:", BUFFER_SIZE, 0);
-    send(player2_SocketDescriptor_, "\n LA FRASE ES ESTA:", BUFFER_SIZE, 0);
+    send(player2_SocketDescriptor_, "\n LA FRASE ES ESTA", BUFFER_SIZE, 0);
 
     string sentences[] =
     {
@@ -44,9 +44,6 @@ FillMissingLettersGame::FillMissingLettersGame(int id, int player1_SocketDescrip
 
     send(player1_SocketDescriptor_, sc, BUFFER_SIZE, 0);
     send(player2_SocketDescriptor_, sc, BUFFER_SIZE, 0);
-
-    send(player1_SocketDescriptor_, "\n", BUFFER_SIZE, 0);
-    send(player2_SocketDescriptor_, "\n", BUFFER_SIZE, 0);
 
     send(player1_SocketDescriptor_, c, BUFFER_SIZE, 0);
     send(player2_SocketDescriptor_, c, BUFFER_SIZE, 0);

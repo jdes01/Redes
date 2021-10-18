@@ -1,6 +1,5 @@
 #include "Server.cc"
 #include "User.cc"
-#include "FillMissingLettersGame.h"
 
 int main() {
     Server server(2000);

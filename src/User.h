@@ -1,11 +1,10 @@
+
 #ifndef USER_H
 #define USER_H
 
 // String
 #include <string>
 using std::string;
-
-#include "FillMissingLettersGame.h"
 
 class User {
 
