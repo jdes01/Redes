@@ -49,7 +49,6 @@ using std::ofstream;
 
 // Game Classes
 #include "FillMissingLettersGame.cc"
-
 #include "User.h"
 
 class Server {

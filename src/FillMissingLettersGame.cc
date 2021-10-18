@@ -12,7 +12,7 @@ FillMissingLettersGame::FillMissingLettersGame(int id, int player1_SocketDescrip
     send(player2_SocketDescriptor_, "\n LA PARTIDA VA A COMENZAR", BUFFER_SIZE, 0);
 
     send(player1_SocketDescriptor_, "\n LA FRASE ES ESTA:", BUFFER_SIZE, 0);
-    send(player2_SocketDescriptor_, "\n LA FRASE ES ESTA", BUFFER_SIZE, 0);
+    send(player2_SocketDescriptor_, "\n LA FRASE ES ESTA:", BUFFER_SIZE, 0);
 
     string sentences[] =
     {
@@ -44,6 +44,9 @@ FillMissingLettersGame::FillMissingLettersGame(int id, int player1_SocketDescrip
 
     send(player1_SocketDescriptor_, sc, BUFFER_SIZE, 0);
     send(player2_SocketDescriptor_, sc, BUFFER_SIZE, 0);
+
+    send(player1_SocketDescriptor_, "\n", BUFFER_SIZE, 0);
+    send(player2_SocketDescriptor_, "\n", BUFFER_SIZE, 0);
 
     send(player1_SocketDescriptor_, c, BUFFER_SIZE, 0);
     send(player2_SocketDescriptor_, c, BUFFER_SIZE, 0);
@@ -83,4 +86,16 @@ void FillMissingLettersGame::handleMessage(char * message){
 
     send(player1_SocketDescriptor_, message, BUFFER_SIZE, 0);
     send(player2_SocketDescriptor_, message, BUFFER_SIZE, 0);
+}
+
+void FillMissingLettersGame::checkVocal(string vocal){
+
+    for (int i=0; i<sentence_.length(); i++) {
+        if (sentence_[i] == vocal[0]){ gameSentence_[i] = vocal[0]; }
+    }
+
+    char* sc = const_cast<char*>(gameSentence_.c_str());
+
+    send(player1_SocketDescriptor_, sc, BUFFER_SIZE, 0);
+    send(player2_SocketDescriptor_, sc, BUFFER_SIZE, 0);
 }

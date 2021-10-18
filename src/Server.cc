@@ -165,6 +165,10 @@ void Server::clientMessageHandler_(User &user, const char* message) {
             searchMatchForClient_(user); 
         }
     } else if (user.isInGame() == true){
+
+        if(std::regex_search(message, RegexMatches, std::regex("VOCAL (.*)"))){
+            user.getGame().checkVocal(RegexMatches.str(1));
+        }
             
             send(user.getAdversaryId(), message, BUFFER_SIZE, 0);
 
@@ -291,6 +295,9 @@ void Server::searchMatchForClient_(User &user) {
 
                     FillMissingLettersGame game(games_.size()+1, user.getClientSocketDescriptor(), adversary.getClientSocketDescriptor(), this->serverSocketDescriptor_);
                     this->games_.push_back(game);    
+
+                    user.setGame(game);
+                    adversary.setGame(game);
                         //game.startGame(); 
 
                         //this->mMatches.push_back(game);     
