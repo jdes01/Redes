@@ -109,9 +109,11 @@ void Server::clientMessageHandler_(User &user, const char* message) {
         exitClient_(user.getClientSocketDescriptor());
 
 
+
     } else if (strcmp(message, "r\n") == 0){
         if (user.isUserLogged()){ send(user.getClientSocketDescriptor(), "CHECKEO LOGIN", BUFFER_SIZE, 0); }
         send(user.getClientSocketDescriptor(), "Indique su usuario y contrasena (REGISTRO -u user -p pass)", BUFFER_SIZE, 0);
+
 
 
     } else if(std::regex_search(message, RegexMatches, std::regex("REGISTRO -u (.*) -p (.*)"))){
@@ -122,14 +124,15 @@ void Server::clientMessageHandler_(User &user, const char* message) {
             user.setPassword(RegexMatches.str(2));
             user.userNameWasChecked();
             user.passwordWasChecked();
-
             addUserToFile(user);
             send(user.getClientSocketDescriptor(), "registrado con exito", BUFFER_SIZE, 0);
         } else { send(user.getClientSocketDescriptor(), "you are already registered", BUFFER_SIZE, 0); }
 
 
+
     } else if (strcmp(message, "l\n") == 0){
         send(user.getClientSocketDescriptor(), "Indique su usuario: (USUARIO xxx)", BUFFER_SIZE, 0);
+
 
 
     } else if(std::regex_search(message, RegexMatches, std::regex("USUARIO (.*)"))){
@@ -139,6 +142,7 @@ void Server::clientMessageHandler_(User &user, const char* message) {
             send(user.getClientSocketDescriptor(), "Ahora indique su password: (PASSWORD xxx)", BUFFER_SIZE, 0);
         }
     
+
 
     } else if(std::regex_search(message, RegexMatches, std::regex("PASSWORD (.*)"))){
         if(checkIfUserIsWritten(user.getUserName(), RegexMatches.str(1)) == true && user.isUserNameChecked() == true && user.isUserLogged() == false){
@@ -159,18 +163,21 @@ void Server::clientMessageHandler_(User &user, const char* message) {
         user.passwordWasChecked();
     
 
+
     } else if (strcmp(message, "INICIAR-PARTIDA\n") == 0){
         if(user.isUserLogged()){ 
             send(user.getClientSocketDescriptor(), "se va a buscar partida", BUFFER_SIZE, 0);
             searchMatchForClient_(user); 
         }
-    } else if (user.isInGame() == true){
-            
-            send(user.getAdversaryId(), message, BUFFER_SIZE, 0);
 
-            if(std::regex_search(message, RegexMatches, std::regex("VOCAL (.*)"))){
-                user.getGame().checkVocal(RegexMatches.str(1));
-            }
+    } else if (user.isInGame() == true){
+        send(user.getAdversaryId(), "message", BUFFER_SIZE, 0);
+        send(user.getClientSocketDescriptor(), "!!!!!!!!!!!!!", BUFFER_SIZE, 0);
+
+        if(std::regex_search(message, RegexMatches, std::regex("VOCAL (.*)"))){
+            send(user.getAdversaryId(), "!", BUFFER_SIZE, 0);
+            user.getGame().checkVocal(RegexMatches.str(1));
+        }
 
     }
     
