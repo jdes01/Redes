@@ -165,6 +165,7 @@ void Server::clientMessageHandler_(User &user, const char* message) {
             searchMatchForClient_(user); 
         }
     } else if (user.isInGame() == true){
+            
             send(user.getAdversaryId(), message, BUFFER_SIZE, 0);
 
     }
@@ -265,20 +266,13 @@ int Server::logInClient(int clientSocketDescriptor){
 
 void Server::searchMatchForClient_(User &user) {
 
-    send(user.getClientSocketDescriptor(), "!!!!!!!!!!!!", BUFFER_SIZE, 0);
-
     bool adversaryFound = false;
 
     if( usersConnected_.size() > 1 ){
-        send(user.getClientSocketDescriptor(), "!!!!!!!!!!!!", BUFFER_SIZE, 0);
 
         while(adversaryFound == false){
-            send(user.getClientSocketDescriptor(), "!!!!!!!!!!!!", BUFFER_SIZE, 0);
 
             for(User &adversary: usersConnected_){
-
-                send(user.getClientSocketDescriptor(), "!!!!!!!!!!!!", BUFFER_SIZE, 0);
-                send(adversary.getClientSocketDescriptor(), "!!!!!!!!!!!!!!", BUFFER_SIZE, 0);
 
                 if( adversary.getClientSocketDescriptor()!=user.getClientSocketDescriptor() && adversary.isInGame()==false && adversary.isUserLogged()==true ){
 
@@ -295,7 +289,8 @@ void Server::searchMatchForClient_(User &user) {
                     user.setAdversaryId(adversary.getClientSocketDescriptor());
                     adversary.setAdversaryId(user.getClientSocketDescriptor());
 
-                        //FillMissingLettersGame game(user.getClientSocketDescriptor(), adversary.getClientSocketDescriptor(), this->serverSocketDescriptor_);
+                    FillMissingLettersGame game(games_.size()+1, user.getClientSocketDescriptor(), adversary.getClientSocketDescriptor(), this->serverSocketDescriptor_);
+                    this->games_.push_back(game);    
                         //game.startGame(); 
 
                         //this->mMatches.push_back(game);     

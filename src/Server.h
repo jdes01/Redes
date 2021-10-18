@@ -72,9 +72,7 @@ class Server {
         fd_set fileDescriptorSet_;
         fd_set auxiliarFileDescriptor_;
         
-
-        std::vector<std::future<int>> mThreads;
-        std::vector<FillMissingLettersGame> mMatches;
+        vector<FillMissingLettersGame> games_;
 
         // startServer
         void recreateFileDescriptor_();
