@@ -124,6 +124,7 @@ void Server::clientMessageHandler_(User &user, const char* message) {
             user.passwordWasChecked();
 
             addUserToFile(user);
+            send(user.getClientSocketDescriptor(), "registrado con exito", BUFFER_SIZE, 0);
         } else { send(user.getClientSocketDescriptor(), "you are already registered", BUFFER_SIZE, 0); }
 
 
@@ -144,7 +145,7 @@ void Server::clientMessageHandler_(User &user, const char* message) {
 
             user.setPassword(RegexMatches.str(1));
             user.passwordWasChecked();
-            send(user.getClientSocketDescriptor(), "REGISTRADO POR COMPLETOOOO", BUFFER_SIZE, 0);
+            send(user.getClientSocketDescriptor(), "LOGUEADO CON EXITO", BUFFER_SIZE, 0);
         
         } else { send(user.getClientSocketDescriptor(), "casi bro", BUFFER_SIZE, 0); }
         
@@ -161,7 +162,7 @@ void Server::clientMessageHandler_(User &user, const char* message) {
     } else if (strcmp(message, "INICIAR-PARTIDA\n") == 0){
         if(user.isUserLogged()){ 
             send(user.getClientSocketDescriptor(), "se va a buscar partida", BUFFER_SIZE, 0);
-            //searchMatchForClient_(user); 
+            searchMatchForClient_(user); 
         }
     }
     
@@ -259,19 +260,24 @@ int Server::logInClient(int clientSocketDescriptor){
 }
 
 
-void Server::searchMatchForClient_(User user) {
+void Server::searchMatchForClient_(User &user) {
 
-    //for (int i: usersConnected_){ cout << i << ' '; }
+    send(user.getClientSocketDescriptor(), "!!!!!!!!!!!!", BUFFER_SIZE, 0);
 
     bool adversaryFound = false;
 
-    if( usersConnected_.size() < 1 ){
+    if( usersConnected_.size() > 1 ){
+        send(user.getClientSocketDescriptor(), "!!!!!!!!!!!!", BUFFER_SIZE, 0);
 
         while(adversaryFound == false){
+            send(user.getClientSocketDescriptor(), "!!!!!!!!!!!!", BUFFER_SIZE, 0);
 
-            for(User adversary: usersConnected_){
+            for(User &adversary: usersConnected_){
 
-                if( adversary.getClientSocketDescriptor() != user.getClientSocketDescriptor() && adversary.isInGame() == false && adversary.isUserLogged() ){
+                send(user.getClientSocketDescriptor(), "!!!!!!!!!!!!", BUFFER_SIZE, 0);
+                send(adversary.getClientSocketDescriptor(), "!!!!!!!!!!!!!!", BUFFER_SIZE, 0);
+
+                if( adversary.getClientSocketDescriptor()!=user.getClientSocketDescriptor() && adversary.isInGame()==false && adversary.isUserLogged()==true ){
 
                     cout << "arrejuntamos a " << adversary.getClientSocketDescriptor() << " y a " << user.getClientSocketDescriptor() << endl;
 
@@ -282,9 +288,14 @@ void Server::searchMatchForClient_(User user) {
                     user.getInGame();
 
                     adversaryFound = true;
-                            
-                            FillMissingLettersGame game(user.getClientSocketDescriptor(), adversary.getClientSocketDescriptor(), this->serverSocketDescriptor_);
-                            game.startGame();                    
+
+                        FillMissingLettersGame game(user.getClientSocketDescriptor(), adversary.getClientSocketDescriptor(), this->serverSocketDescriptor_);
+                        game.startGame(); 
+
+                        //this->mMatches.push_back(game);     
+
+                        //this->mThreads.push_back(std::async(std::launch::async, [this]{return this->mMatches.back().startGame();}));              
+
                     break;
                 }
                 

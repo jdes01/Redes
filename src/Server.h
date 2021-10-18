@@ -25,6 +25,8 @@
 
 // Threads
 #include <future>
+#include <vector>
+
 
 // String
 #include <string>
@@ -71,6 +73,9 @@ class Server {
         fd_set auxiliarFileDescriptor_;
         
 
+        std::vector<std::future<int>> mThreads;
+        std::vector<FillMissingLettersGame> mMatches;
+
         // startServer
         void recreateFileDescriptor_();
         void handleNewClient_();
@@ -80,7 +85,7 @@ class Server {
 
         void clientMessageHandler_(User &user, const char* message);
         
-        void searchMatchForClient_(User user);
+        void searchMatchForClient_(User &user);
         void serverMessageHandler_();
         void closeServer_();
 
