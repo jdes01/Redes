@@ -183,6 +183,18 @@ void Server::clientMessageHandler_(User &user, const char* message) {
                     x.checkConsonante(RegexMatches.str(1), user.getClientSocketDescriptor());
                 }
             }
+
+        } else if(std::regex_search(message, RegexMatches, std::regex("RESOLVER (.*)"))){
+
+            for(FillMissingLettersGame &x: games_){
+                if(x.getGameId() == user.getGameId()){
+                    int returned = x.resolve(RegexMatches.str(1), user.getClientSocketDescriptor());
+                    if(returned == 1){
+                        user.exitGame();
+                    }
+                }
+            }
+            
         }
             
         send(user.getAdversaryId(), message, BUFFER_SIZE, 0);

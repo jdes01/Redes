@@ -192,7 +192,6 @@ void FillMissingLettersGame::checkConsonante(string consonante, int playerId){
     }
 }
 /*
- *
  * @return 0 if not finished and 1 if finished
  */
 int FillMissingLettersGame::checkGame(){
@@ -202,4 +201,30 @@ int FillMissingLettersGame::checkGame(){
     }
 
     return 1;
+}
+
+/*
+ * @return 0 if not finished and 1 if finished
+ */
+int FillMissingLettersGame::resolve(string solution, int playerId){
+
+    if(playerId == playerTurn_){
+        if(solution == this->sentence_){
+
+            if(playerId == this->player1_SocketDescriptor_){ 
+
+                send(player1_SocketDescriptor_, "GANASTE", BUFFER_SIZE, 0);
+                send(player2_SocketDescriptor_, "ESPABILA", BUFFER_SIZE, 0);
+                return 1;
+
+            } else{ 
+
+                send(player2_SocketDescriptor_, "GANASTE", BUFFER_SIZE, 0);
+                send(player1_SocketDescriptor_, "ESPABILA", BUFFER_SIZE, 0);
+                return 1;
+            }
+        }
+    }
+
+    return 0; 
 }

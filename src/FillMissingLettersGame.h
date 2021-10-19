@@ -57,6 +57,7 @@ class FillMissingLettersGame{
 
         int checkGame();
 
+        int resolve(string solution, int playerId);
 
 };
 #endif
