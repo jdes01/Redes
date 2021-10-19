@@ -77,22 +77,13 @@ class Server {
         void recreateFileDescriptor_();
         void handleNewClient_();
         void addClientToServer_(int newClientSocketDescriptor);
-        void sendTooManyClientsMessageToNewClient_();
         void exitClient_(int clientSocketDescriptor);
 
         void clientMessageHandler_(User &user, const char* message);
         
         void searchMatchForClient_(User &user);
-        void serverMessageHandler_();
-        void closeServer_();
-
-        bool isClientLogged(int clientSocketDescriptor);
 
         void registerUser(string userName, string password);
-
-        int logInClient(int clientSocketDescriptor);
-
-        int registerOrLoginProcess(int newClientSocketDescriptor_); //1 success 0 error
 
         void addUserToFile(User user);
 

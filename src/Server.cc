@@ -44,15 +44,9 @@ void Server::startServer() {
         tv.tv_sec = 0.1; 
         tv.tv_usec = 0; 
 
-        cout << "1" <<endl;
-
         recreateFileDescriptor_();
-
-        cout << "2" <<endl;
     
         select(FD_SETSIZE, &this->fileDescriptorSet_, NULL, NULL, &tv);
-
-        cout << "3" <<endl;
 
         // iterate on usersConnected array
 
@@ -74,9 +68,7 @@ void Server::startServer() {
         // it enters here the very first time server starts
 
         if (FD_ISSET(this->serverSocketDescriptor_, &this->fileDescriptorSet_)) {
-            cout << "detect server socket activity" <<endl;
             handleNewClient_();
-            cout << "comes out of handleNewClient function" <<endl;
         }
     }
     
@@ -92,7 +84,6 @@ void Server::recreateFileDescriptor_() {
     FD_SET(this->serverSocketDescriptor_, &this->fileDescriptorSet_); // messages written from client will arrive at server socket
 
     for (auto user: this->usersConnected_) {
-        cout << "x" <<endl;
         FD_SET(user.getClientSocketDescriptor(), &this->fileDescriptorSet_);
     }
 }
@@ -125,7 +116,7 @@ void Server::clientMessageHandler_(User &user, const char* message) {
 
             addUserToFile(user);
             send(user.getClientSocketDescriptor(), "registrado con exito", BUFFER_SIZE, 0);
-        } else { send(user.getClientSocketDescriptor(), "you are already registered", BUFFER_SIZE, 0); }
+        } else { send(user.getClientSocketDescriptor(), "ya estas registrado", BUFFER_SIZE, 0); }
 
 
     } else if (strcmp(message, "l\n") == 0){
@@ -133,7 +124,7 @@ void Server::clientMessageHandler_(User &user, const char* message) {
 
 
     } else if(std::regex_search(message, RegexMatches, std::regex("USUARIO (.*)"))){
-        if(isClientLogged(user.getClientSocketDescriptor()) == false){
+        if(user.isUserLogged() == false){
             user.setUserName(RegexMatches.str(1));
             user.userNameWasChecked();
             send(user.getClientSocketDescriptor(), "Ahora indique su password: (PASSWORD xxx)", BUFFER_SIZE, 0);
@@ -147,7 +138,7 @@ void Server::clientMessageHandler_(User &user, const char* message) {
             user.passwordWasChecked();
             send(user.getClientSocketDescriptor(), "LOGUEADO CON EXITO", BUFFER_SIZE, 0);
         
-        } else { send(user.getClientSocketDescriptor(), "casi bro", BUFFER_SIZE, 0); }
+        } else { send(user.getClientSocketDescriptor(), "error al hacer login", BUFFER_SIZE, 0); }
         
 
 
@@ -168,7 +159,6 @@ void Server::clientMessageHandler_(User &user, const char* message) {
 
         if(std::regex_search(message, RegexMatches, std::regex("VOCAL (.*)"))){
 
-            send(user.getAdversaryId(), "!!!", BUFFER_SIZE, 0);
             for(FillMissingLettersGame &x: games_){
                 if(x.getGameId() == user.getGameId()){
                     x.checkVocal(RegexMatches.str(1), user.getClientSocketDescriptor());
@@ -177,7 +167,6 @@ void Server::clientMessageHandler_(User &user, const char* message) {
         
         } else if(std::regex_search(message, RegexMatches, std::regex("CONSONANTE (.*)"))){
 
-            send(user.getAdversaryId(), "???", BUFFER_SIZE, 0);
             for(FillMissingLettersGame &x: games_){
                 if(x.getGameId() == user.getGameId()){
                     x.checkConsonante(RegexMatches.str(1), user.getClientSocketDescriptor());
@@ -206,8 +195,6 @@ void Server::clientMessageHandler_(User &user, const char* message) {
 
 void Server::handleNewClient_() {
 
-    cout << "Handle new client" << endl;
-
     int newClientSocketDescriptor = accept(serverSocketDescriptor_, (struct sockaddr *) &clientSocketData_ , &clientSocketDataSize_);
 
     if(newClientSocketDescriptor == -1) {
@@ -219,54 +206,8 @@ void Server::handleNewClient_() {
         send(newClientSocketDescriptor, "Elige si quieres registrarte (r) o loguearte (l)", BUFFER_SIZE, 0);
     
     } else {
-        sendTooManyClientsMessageToNewClient_();
+        send(newClientSocketDescriptor, "SERVIDOR COMPLETO", BUFFER_SIZE, 0);
     }
-}
-
-
-int Server::registerOrLoginProcess(int newClientSocketDescriptor){
-    /*
-    std::cmatch RegexMatches;
-
-    send(newClientSocketDescriptor, "Elige si quieres registrarte (r) o loguearte (l)", BUFFER_SIZE, 0);
-    recv(newClientSocketDescriptor, &messageBuffer_, BUFFER_SIZE, 0);
-
-    if (strcmp(messageBuffer_, "l\n") == 0){
-
-        send(newClientSocketDescriptor, "Indique su usuario: (USUARIO xxx)", BUFFER_SIZE, 0);
-        recv(newClientSocketDescriptor, &messageBuffer_, BUFFER_SIZE, 0);
-
-        if( std::regex_search(messageBuffer_, RegexMatches, std::regex("USUARIO (.*)")) ){
-
-            //if(isClientLogged(clientSocketDescriptor) == false){
-
-                send(newClientSocketDescriptor, "Ahora indique su password: (PASSWORD xxx)", BUFFER_SIZE, 0);
-                recv(newClientSocketDescriptor, &messageBuffer_, BUFFER_SIZE, 0);
-
-                if(std::regex_search(messageBuffer_, RegexMatches, std::regex("PASSWORD (.*)"))){
-
-                    //logInClient(newClientSocketDescriptor_, RegexMatches.str(1)); // TODO: need to login
-                    return 1;
-                }
-            //}
-
-        }
-    }
-    if (strcmp(messageBuffer_, "r\n") == 0){
-
-        send(newClientSocketDescriptor, "Indique su usuario y contrasena (REGISTRO -u user -p pass)", BUFFER_SIZE, 0);
-        recv(newClientSocketDescriptor, &messageBuffer_, BUFFER_SIZE, 0);
-        if(std::regex_search(messageBuffer_, RegexMatches, std::regex("REGISTRO -u (.*) -p (.*)"))){
-
-            //registerUser(RegexMatches.str(1), RegexMatches.str(2));
-            //write user in users.txt
-            return 1;
-        }
-        return 0;
-    }
-    */
-    return 0;
-    
 }
 
 
@@ -278,20 +219,6 @@ void Server::addClientToServer_(int newClientSocketDescriptor) {
     numberOfClients_++;
     send(user.getClientSocketDescriptor(), "Welcome To Server", BUFFER_SIZE, 0);
     cout << "Client was added to clientsConnected array" << endl;
-}
-
-
-bool Server::isClientLogged(int clientSocketDescriptor){
-
-    return false;
-}
-
-
-int Server::logInClient(int clientSocketDescriptor){
-
-    //clientsLogged_.push_back(clientSocketDescriptor);
-    //playersQueue_.push_back(clientSocketDescriptor);
-    return 0;
 }
 
 
@@ -307,7 +234,7 @@ void Server::searchMatchForClient_(User &user) {
 
                 if( adversary.getClientSocketDescriptor()!=user.getClientSocketDescriptor() && adversary.isInGame()==false && adversary.isUserLogged()==true ){
 
-                    cout << "arrejuntamos a " << adversary.getClientSocketDescriptor() << " y a " << user.getClientSocketDescriptor() << endl;
+                    cout << "partida entre " << adversary.getClientSocketDescriptor() << " y " << user.getClientSocketDescriptor() << endl;
 
                     send(user.getClientSocketDescriptor(), "partida encontrada", BUFFER_SIZE, 0);
                     send(adversary.getClientSocketDescriptor(), "partida encontrada", BUFFER_SIZE, 0);
@@ -339,15 +266,10 @@ void Server::searchMatchForClient_(User &user) {
 void Server::registerUser(string userName, string password){
 
     ofstream UsersFile("usuarios.txt"); 
-
     UsersFile<<userName<<";"<<password<<std::endl;
-
     UsersFile.close();
 }
 
-
-
-void Server::sendTooManyClientsMessageToNewClient_() {}
 
 
 void Server::exitClient_(int clientSocketDescriptor) {
@@ -358,10 +280,6 @@ void Server::exitClient_(int clientSocketDescriptor) {
     FD_CLR(clientSocketDescriptor, &this->fileDescriptorSet_);
 }
 
-
-void Server::serverMessageHandler_() {}
-
-void Server::closeServer_() {}
 
 void Server::addUserToFile(User user){
 

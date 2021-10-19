@@ -41,7 +41,6 @@ FillMissingLettersGame::FillMissingLettersGame(int id, int player1_SocketDescrip
         else{ gameSentence_+='_'; }
     }
 
-    char* c = const_cast<char*>(sentence_.c_str());
     char* sc = const_cast<char*>(gameSentence_.c_str());
 
     send(player1_SocketDescriptor_, sc, BUFFER_SIZE, 0);
@@ -49,9 +48,6 @@ FillMissingLettersGame::FillMissingLettersGame(int id, int player1_SocketDescrip
 
     send(player1_SocketDescriptor_, "\n", BUFFER_SIZE, 0);
     send(player2_SocketDescriptor_, "\n", BUFFER_SIZE, 0);
-
-    send(player1_SocketDescriptor_, c, BUFFER_SIZE, 0);
-    send(player2_SocketDescriptor_, c, BUFFER_SIZE, 0);
 }
 
 
@@ -89,6 +85,7 @@ void FillMissingLettersGame::handleMessage(char * message){
     send(player1_SocketDescriptor_, message, BUFFER_SIZE, 0);
     send(player2_SocketDescriptor_, message, BUFFER_SIZE, 0);
 }
+
 
 void FillMissingLettersGame::checkVocal(string vocal, int playerId){
 
@@ -214,13 +211,13 @@ int FillMissingLettersGame::resolve(string solution, int playerId){
             if(playerId == this->player1_SocketDescriptor_){ 
 
                 send(player1_SocketDescriptor_, "GANASTE", BUFFER_SIZE, 0);
-                send(player2_SocketDescriptor_, "ESPABILA", BUFFER_SIZE, 0);
+                send(player2_SocketDescriptor_, "PERDISTE", BUFFER_SIZE, 0);
                 return 1;
 
             } else{ 
 
                 send(player2_SocketDescriptor_, "GANASTE", BUFFER_SIZE, 0);
-                send(player1_SocketDescriptor_, "ESPABILA", BUFFER_SIZE, 0);
+                send(player1_SocketDescriptor_, "PERDISTE", BUFFER_SIZE, 0);
                 return 1;
             }
         }
