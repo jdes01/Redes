@@ -111,7 +111,7 @@ void Server::clientMessageHandler_(User &user, const char* message) {
 
     } else if (strcmp(message, "r\n") == 0){
         if (user.isUserLogged()){ send(user.getClientSocketDescriptor(), "CHECKEO LOGIN", BUFFER_SIZE, 0); }
-        send(user.getClientSocketDescriptor(), "Indique su aa y bb (REGISTRO -u user -p pass)", BUFFER_SIZE, 0);
+        send(user.getClientSocketDescriptor(), "Indique su usuario y clave (REGISTRO -u user -p pass)", BUFFER_SIZE, 0);
 
 
     } else if(std::regex_search(message, RegexMatches, std::regex("REGISTRO -u (.*) -p (.*)"))){
@@ -166,9 +166,24 @@ void Server::clientMessageHandler_(User &user, const char* message) {
         }
     } else if (user.isInGame() == true){
 
-        /*if(std::regex_search(message, RegexMatches, std::regex("VOCAL (.*)"))){
-            user.getGame().checkVocal(RegexMatches.str(1));
-        }*/
+        if(std::regex_search(message, RegexMatches, std::regex("VOCAL (.*)"))){
+
+            send(user.getAdversaryId(), "!!!", BUFFER_SIZE, 0);
+            for(FillMissingLettersGame &x: games_){
+                if(x.getGameId() == user.getGameId()){
+                    x.checkVocal(RegexMatches.str(1), user.getClientSocketDescriptor());
+                }
+            }
+        
+        } else if(std::regex_search(message, RegexMatches, std::regex("CONSONANTE (.*)"))){
+
+            send(user.getAdversaryId(), "???", BUFFER_SIZE, 0);
+            for(FillMissingLettersGame &x: games_){
+                if(x.getGameId() == user.getGameId()){
+                    x.checkConsonante(RegexMatches.str(1), user.getClientSocketDescriptor());
+                }
+            }
+        }
             
         send(user.getAdversaryId(), message, BUFFER_SIZE, 0);
 
@@ -293,16 +308,11 @@ void Server::searchMatchForClient_(User &user) {
                     user.setAdversaryId(adversary.getClientSocketDescriptor());
                     adversary.setAdversaryId(user.getClientSocketDescriptor());
 
+                    user.setGameId(games_.size()+1);
+                    adversary.setGameId(games_.size()+1);
+
                     FillMissingLettersGame game(games_.size()+1, user.getClientSocketDescriptor(), adversary.getClientSocketDescriptor(), this->serverSocketDescriptor_);
-                    this->games_.push_back(game);  
-
-                    //user.setGame(game);
-                    //adversary.setGame(game);  
-                        //game.startGame(); 
-
-                        //this->mMatches.push_back(game);     
-
-                        //this->mThreads.push_back(std::async(std::launch::async, [this]{return this->mMatches.back().startGame();}));              
+                    this->games_.push_back(game);          
 
                     break;
                 }

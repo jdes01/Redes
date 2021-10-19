@@ -22,6 +22,8 @@ class FillMissingLettersGame{
         int player1_SocketDescriptor_;
         int player2_SocketDescriptor_;
 
+        int playerTurn_;
+
         int server_SocketDescriptor_;
 
         int playerInTurnSocketDescriptor_;
@@ -38,6 +40,9 @@ class FillMissingLettersGame{
         string sentence_;
         string gameSentence_;
 
+        int player1_score = 0;
+        int player2_score = 0;
+
     public:
         FillMissingLettersGame(int id, int player1_SocketDescriptor, int player2_SocketDescriptor, int server_SocketDescriptor);
         void startGame();
@@ -45,9 +50,12 @@ class FillMissingLettersGame{
          int getGameId(){ return this->gameId_; }
         void setGameId(int id){ this->gameId_ = id; }
         
-        void checkVocal(string vocal);
+        void checkVocal(string vocal, int playerId);
+        void checkConsonante(string consonante, int playerId);
 
         string getGameSentence(){ return this->gameSentence_; }
+
+        int checkGame();
 
 
 };

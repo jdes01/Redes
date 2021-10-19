@@ -19,6 +19,8 @@ class User {
 
         int adversaryId_;
 
+        int gameId_;
+
     public:
         User(int clientSocketDescriptor);
         int getClientSocketDescriptor(){ return this->clientSocketDescriptor_; }
@@ -43,6 +45,9 @@ class User {
 
          int getAdversaryId(){ return adversaryId_; }
         void setAdversaryId(int id){ this->adversaryId_ = id; }
+
+        int getGameId(){ return this->gameId_; }
+        void setGameId(int id){ this->gameId_ = id; }
 
 };
 #endif
