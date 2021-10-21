@@ -127,8 +127,10 @@ void Server::clientMessageHandler_(User &user, const char* message) {
         if(user.isUserLogged() == false){
             user.setUserName(RegexMatches.str(1));
             user.userNameWasChecked();
+            send(user.getClientSocketDescriptor(), "+Ok.  Usuario  correcto", BUFFER_SIZE, 0);
             send(user.getClientSocketDescriptor(), "Ahora indique su password: (PASSWORD xxx)", BUFFER_SIZE, 0);
-        }
+        
+        } else { send(user.getClientSocketDescriptor(), "–Err.  Usuario  incorrecto", BUFFER_SIZE, 0); }
     
 
     } else if(std::regex_search(message, RegexMatches, std::regex("PASSWORD (.*)"))){
@@ -136,9 +138,9 @@ void Server::clientMessageHandler_(User &user, const char* message) {
 
             user.setPassword(RegexMatches.str(1));
             user.passwordWasChecked();
-            send(user.getClientSocketDescriptor(), "LOGUEADO CON EXITO", BUFFER_SIZE, 0);
+            send(user.getClientSocketDescriptor(), "+Ok. Usuario validado", BUFFER_SIZE, 0);
         
-        } else { send(user.getClientSocketDescriptor(), "error al hacer login", BUFFER_SIZE, 0); }
+        } else { send(user.getClientSocketDescriptor(), "–ERR. Error en la validación", BUFFER_SIZE, 0); }
         
 
 
@@ -203,6 +205,7 @@ void Server::handleNewClient_() {
     
     } else if(numberOfClients_ < MAX_CLIENTS) {
         addClientToServer_(newClientSocketDescriptor);
+        send(newClientSocketDescriptor, "+0k. Usuario conectado", BUFFER_SIZE, 0);
         send(newClientSocketDescriptor, "Elige si quieres registrarte (r) o loguearte (l)", BUFFER_SIZE, 0);
     
     } else {
@@ -217,7 +220,6 @@ void Server::addClientToServer_(int newClientSocketDescriptor) {
     usersConnected_.push_back(user);
     FD_SET(user.getClientSocketDescriptor(), &this->fileDescriptorSet_);   
     numberOfClients_++;
-    send(user.getClientSocketDescriptor(), "Welcome To Server", BUFFER_SIZE, 0);
     cout << "Client was added to clientsConnected array" << endl;
 }
 
