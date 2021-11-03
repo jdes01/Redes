@@ -48,10 +48,6 @@ FillMissingLettersGame::FillMissingLettersGame(int id, int player1_SocketDescrip
 
     send(player1_SocketDescriptor_, "\n", BUFFER_SIZE, 0);
     send(player2_SocketDescriptor_, "\n", BUFFER_SIZE, 0);
-
-    char* c = const_cast<char*>(sentence_.c_str());
-    send(player1_SocketDescriptor_, c, BUFFER_SIZE, 0);
-    send(player2_SocketDescriptor_, c, BUFFER_SIZE, 0);
 }
 
 
@@ -149,7 +145,9 @@ void FillMissingLettersGame::checkConsonante(string consonante, int playerId){
 
     if(playerId == playerTurn_){
 
-    if( consonante != "a" && consonante != "e" && consonante != "i" && consonante != "o" && consonante != "u"){
+    if( consonante == "q" || consonante == "w" || consonante == "r" || consonante == "t" || consonante == "y" || consonante == "p"
+        || consonante == "s" || consonante == "d" || consonante == "f" || consonante == "g" || consonante == "h" || consonante == "j" || consonante == "k"
+        || consonante == "n" || consonante == "z" || consonante == "x" || consonante == "c" || consonante == "v" || consonante == "b" || consonante == "m"){
 
         int found = 0;
 
