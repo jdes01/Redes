@@ -59,5 +59,8 @@ class FillMissingLettersGame{
 
         int resolve(string solution, int playerId);
 
+        int getPlayer1SocketDescriptor(){ return this->player1_SocketDescriptor_; }
+        int getPlayer2SocketDescriptor(){ return this->player2_SocketDescriptor_; }
+
 };
 #endif

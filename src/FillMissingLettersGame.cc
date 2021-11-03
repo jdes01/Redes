@@ -214,12 +214,30 @@ int FillMissingLettersGame::resolve(string solution, int playerId){
 
                 send(player1_SocketDescriptor_, "GANASTE", BUFFER_SIZE, 0);
                 send(player2_SocketDescriptor_, "PERDISTE", BUFFER_SIZE, 0);
+                
+                string s1 = std::to_string(player1_score);
+                char const * p1s = s1.c_str();
+                send(player1_SocketDescriptor_, p1s, BUFFER_SIZE, 0);
+
+                string s2 = std::to_string(player2_score);
+                char const * p2s = s2.c_str();
+                send(player2_SocketDescriptor_, p2s, BUFFER_SIZE, 0);
+
                 return 1;
 
             } else{ 
 
                 send(player2_SocketDescriptor_, "GANASTE", BUFFER_SIZE, 0);
                 send(player1_SocketDescriptor_, "PERDISTE", BUFFER_SIZE, 0);
+
+                string s1 = std::to_string(player1_score);
+                char const * p1s = s1.c_str();
+                send(player1_SocketDescriptor_, p1s, BUFFER_SIZE, 0);
+
+                string s2 = std::to_string(player2_score);
+                char const * p2s = s2.c_str();
+                send(player2_SocketDescriptor_, p2s, BUFFER_SIZE, 0);
+                
                 return 1;
             }
         }

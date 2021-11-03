@@ -181,7 +181,12 @@ void Server::clientMessageHandler_(User &user, const char* message) {
                 if(x.getGameId() == user.getGameId()){
                     int returned = x.resolve(RegexMatches.str(1), user.getClientSocketDescriptor());
                     if(returned == 1){
-                        user.exitGame();
+                        for(User user: usersConnected_){
+                            if(user.getClientSocketDescriptor() == x.getPlayer1SocketDescriptor() || user.getClientSocketDescriptor() == x.getPlayer2SocketDescriptor()){
+                                user.exitGame();
+                                send(user.getClientSocketDescriptor(), "SALE DE LA PARTIDA", BUFFER_SIZE, 0);
+                            }
+                        }
                     }
                 }
             }
@@ -316,8 +321,12 @@ bool Server::checkIfUserIsWritten(string userName, string password){
 
         if( userName == aux ){
 
-            f.close();
-            return true;
+            getline(f, aux, '\n');
+
+            if( password == aux ){
+                f.close();
+                return true;
+            }
         }
 
         getline(f, aux, '\n');
